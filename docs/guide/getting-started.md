@@ -16,7 +16,7 @@ the converted file or save it with Laravel Storage.
 LibreOffice is installed separately. Compatibility is determined by whether its command and filters complete
 the requested conversion; the package does not require or inspect a numeric LibreOffice version.
 
-## Installation
+## Install the package
 
 Install the package with Composer:
 
@@ -24,8 +24,63 @@ Install the package with Composer:
 composer require mattmy/laravel-office-converter
 ```
 
-Install LibreOffice through your operating system or deployment image. The package does not download or
-bundle it.
+## Install LibreOffice
+
+Use your operating system's package manager or the prebuilt installer from the
+[LibreOffice download page](https://www.libreoffice.org/download/). The
+[official installation instructions](https://www.libreoffice.org/installation-instructions/) provide more
+detail for macOS, Linux, and Windows. You do not need to compile LibreOffice from source.
+
+### macOS
+
+Install the [Homebrew LibreOffice cask](https://formulae.brew.sh/cask/libreoffice):
+
+```bash
+brew install --cask libreoffice
+```
+
+Without Homebrew, download the Apple Silicon or Intel `.dmg` from the LibreOffice website and move
+LibreOffice to Applications as described in the official instructions.
+
+### Ubuntu and Debian
+
+Install the distribution package:
+
+```bash
+sudo apt update
+sudo apt install libreoffice
+```
+
+Ubuntu lists LibreOffice in its [official package index](https://packages.ubuntu.com/search?keywords=libreoffice),
+and Debian provides it through its normal package repositories. You can also use the prebuilt `.deb` packages
+from the LibreOffice download page.
+
+### RHEL and Fedora
+
+Install from an enabled distribution repository when available:
+
+```bash
+sudo dnf install libreoffice
+```
+
+Fedora publishes LibreOffice in its
+[official package index](https://packages.fedoraproject.org/pkgs/libreoffice/libreoffice/). RHEL repository
+availability depends on the release and enabled subscriptions; use LibreOffice's prebuilt `.rpm` download and
+official installation instructions when the package is unavailable.
+
+### Windows
+
+Download the Windows installer from the LibreOffice website and complete its installation wizard. The usual
+console executable location is:
+
+```text
+C:\Program Files\LibreOffice\program\soffice.com
+```
+
+If it is not on `PATH`, set `LIBREOFFICE_BINARY` to that path in your Laravel environment.
+
+The package does not require or inspect a numeric LibreOffice version. Compatibility is determined by whether
+the installed command and filters complete the requested conversion.
 
 ## Configuration
 

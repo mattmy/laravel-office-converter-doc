@@ -3,7 +3,7 @@ layout: home
 
 hero:
   name: Laravel Office Converter
-  text: Laravel 的辦公文件轉換套件
+  text: Laravel 的文件轉換器
   tagline: 使用 LibreOffice 轉換文件、試算表、簡報、繪圖與圖片，並透過 Laravel Storage 輕鬆儲存。
   actions:
     - theme: brand
