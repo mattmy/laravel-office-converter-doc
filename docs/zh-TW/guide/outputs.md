@@ -1,9 +1,9 @@
 # 取得與儲存輸出
 
-`convertTo()` 回傳一次性的 `ConvertedOffice`。請在 `output()` 與 `storeAs()` 之間選擇一個 terminal
-operation。
+`convertTo()` 回傳一次性的 `ConvertedOffice`。請選擇 `output()` 取得內容，或用 `storeAs()` 儲存，
+同一個結果只能使用一次。
 
-## 讀取全部 bytes
+## 取得完整內容
 
 ```php
 use Mattmy\OfficeConverter\Enums\Format;
@@ -11,12 +11,14 @@ use Mattmy\OfficeConverter\Enums\Format;
 $bytes = $document->convertTo(Format::PDF)->output();
 ```
 
-`output()` 回傳完整 binary string，接著清理套件 workspace。讀取前會再次檢查產物。只有在完整輸出
-可安全放入 PHP 記憶體時才使用此方法。
+`output()` 在讀取前重新檢查輸出檔案，回傳完整的二進位字串後清理暫存資料夾。
+完整輸出會占用 PHP 記憶體；若只是要儲存，請用 `storeAs()`。
 
 ## 串流至 Laravel Storage
 
 ```php
+use Mattmy\OfficeConverter\Enums\Format;
+
 $storedPath = $document
     ->convertTo(Format::DOCX)
     ->storeAs(
@@ -26,19 +28,17 @@ $storedPath = $document
     );
 ```
 
-上例會儲存為 `converted-documents/quarterly-report.xlsx.docx`。檔名只是名稱，不是選擇輸出格式的
-授權；可信的 `.docx` 來自 `Format::DOCX`。
-
-方法 signature：
+上例會儲存為 `converted-documents/quarterly-report.xlsx.docx`：保留傳入的檔名，再由
+`Format::DOCX` 決定最後的副檔名。
 
 ```php
 storeAs(string $path, ?string $filename = null, ?string $disk = null): string|false
 ```
 
-- `$path` 是所選 disk 內的相對資料夾；`''` 表示 disk 根目錄，結尾的 `/` 會被正規化。
-- `$filename` 是 optional 安全檔名；既有的其他副檔名文字會保留。
-- `$disk` 選擇 Laravel filesystem disk；`null` 使用預設 disk。
-- 回傳值是 Laravel Storage 的儲存路徑，或所選 driver 回傳的 `false`。
+- `$path` 是所選 disk 內的相對資料夾；`''` 表示根目錄，結尾的 `/` 會移除。
+- `$filename` 可省略，傳入時須符合下方的安全檔名規則。
+- `$disk` 為 `null` 時使用 Laravel 預設 disk。
+- 回傳儲存路徑；Storage 驅動程式回報失敗時，回傳 `false`。
 
 ## 檔名範例
 
@@ -50,27 +50,22 @@ storeAs(string $path, ?string $filename = null, ?string $disk = null): string|fa
 | `Format::HTML` | `report.docx` | `report.docx.html` |
 | `Format::JPEG` | `preview.jpeg` | `preview.jpeg.jpg` |
 
-省略 `$filename` 時會優先使用安全的來源檔名 stem。Raw content、遺失或不安全的來源 stem 會改用
-`converted-{16 個小寫十六進位字元}`。
+省略 `$filename` 時，會使用來源檔名去掉最後副檔名後的名稱。沒有來源檔名或名稱不安全時，
+改用 `converted-{16 個小寫十六進位字元}`。
 
-## 安全目的地
+## 安全路徑與檔名
 
-資料夾路徑必須是相對路徑、使用正斜線，而且不得包含空 segment、`.` 或 `..` segment。絕對路徑、drive
-path、反斜線、NUL 與 Unicode control characters 都會遭到拒絕。檔名不得為空字串、`.` 或 `..`，
-也不得包含路徑分隔符或 Unicode control characters。
+資料夾路徑須使用 `/` 分隔；移除結尾的 `/` 後，不得含有空的路徑區段（例如 `a//b`）、`.` 或 `..`。
+完整空字串可表示根目錄。絕對路徑、磁碟機路徑、反斜線、無效 UTF-8 與 Unicode 控制字元
+（包含 NUL）都不接受。
 
-不安全目的地會在呼叫 Storage 前拋出 PHP `InvalidArgumentException`。
+檔名不得為空字串、`.` 或 `..`，也不得包含路徑分隔符、無效 UTF-8 或 Unicode 控制字元。
+違規時會在呼叫 Storage 前拋出 `InvalidArgumentException`。
 
-## Storage 行為
+## 覆寫與失敗行為
 
-`storeAs()` 沿用所選 Laravel Storage driver 的行為：
+`storeAs()` 沿用所選 disk 的覆寫行為，原樣回傳 `false` 或拋出 Storage／Flysystem 例外。
+套件不提供不可分割寫入、失敗回復或自動重試，也不提供輸出 MIME 查詢方法或設定 Storage 的 Content-Type。
 
-- 不檢查目的地是否已存在；
-- 不防止覆寫，也不在覆寫失敗時 rollback；
-- 不提供 atomic publish、lock、conditional create 或 retry；
-- driver 回傳 `false` 時原樣回傳；
-- Laravel Storage 與 Flysystem 例外原樣拋出；
-- 不設定 Content-Type metadata。
-
-無論 Storage 成功、回傳 `false` 或拋出例外，輸出都會被消費並清理 package workspace。重新交付前
-必須再次執行轉換。
+不論驗證或儲存成功、失敗，結果都不能再使用，套件也會清理自己的暫存資料夾。
+需要重試儲存時，請重新建立輸入並執行轉換。

@@ -1,41 +1,33 @@
 # Performance and security
 
-Office conversion executes a native parser against complex input. Treat every upload, source file, diagnostic,
-and generated artifact as untrusted.
+## Execution environment
 
-## Execution scope
+Conversions run synchronously, starting the configured executable each time. The package validates input and
+output, applies a timeout, and cleans its temporary files. Your application manages sandboxing, LibreOffice
+profiles, macro policies, network permissions, and operating-system resource limits.
 
-Conversions are synchronous. The package executes the configured command, validates one output artifact, and
-optionally streams it to Laravel Storage. It does not configure or require a sandbox, LibreOffice profile,
-macro policy, network policy, operating-system limits, or process supervisor. The application owns those
-execution-environment decisions.
+The timeout stops only the process the package directly manages; it does not guarantee that every child
+process stops.
 
 ## Memory and temporary disk
 
-- Every accepted source is copied into a private workspace.
-- `fromContent()` receives a complete string already held in PHP memory.
-- `output()` loads the complete converted artifact into PHP memory.
-- `storeAs()` streams the artifact to Laravel Storage.
-- `max_output_bytes` validates the completed artifact and does not cap temporary disk use during conversion.
+- Every source is copied to a separate temporary workspace.
+- `fromContent()` holds the complete input string in PHP memory; `output()` loads the complete output.
+- If you only need to save the result, `storeAs()` streams it without loading the complete output into memory.
+- `max_output_bytes` is checked after conversion, so it does not limit disk use while LibreOffice runs.
 
-Keep positive byte limits. Capacity planning for PHP memory, temporary disk, and concurrent processes belongs
-to the application.
+Plan memory, temporary disk space, and process capacity around your document sizes and concurrent conversions.
 
-## Input and output trust
+## Limits of format validation
 
-File extensions and upload MIME values are not sufficient proof of a format. The package performs bounded
-structural checks, but successful validation or conversion does not prove that:
+The package checks basic file structure. Passing validation does not prove a file is safe. Conversion also
+does not guarantee preservation of layout, fonts, formulas, macros, links, animations, or images. PDF conversion
+does not provide OCR or document structure reconstruction.
 
-- the source is safe or contains no parser exploit;
-- every feature, font, formula, macro, link, animation, or image was preserved;
-- the output is lossless or visually identical to Microsoft Office;
-- a PDF-to-Draw conversion reconstructed editable structure or performed OCR.
+Before deployment, test representative files covering the languages, layouts, fonts, and formulas you expect.
 
-Test with representative documents from the tools and workflows your application actually supports, including
-the languages, layouts, fonts, and formulas your users rely on.
+## Paths and privacy
 
-## Paths, logging, and privacy
-
-Only pass local paths that application code has authorized. Do not log complete input or output bytes, original
-filenames, server paths, document text, or unsanitized external-process output. Apply your normal retention and
-access policy to stored conversions, which may contain personal or confidential data.
+Pass only local paths your application has authorized. Avoid logging document content, sensitive filenames,
+server paths, or unsanitized process output. Apply your application's access and retention policies to stored
+conversions too.

@@ -1,7 +1,14 @@
 # API reference
 
-This page lists the public API available to your Laravel application. Linked guides explain input, conversion,
-delivery, and error behavior.
+## Imports
+
+```php
+use Mattmy\OfficeConverter\Enums\Format;
+use Mattmy\OfficeConverter\Enums\InputFormat;
+use Mattmy\OfficeConverter\Facades\Office;
+```
+
+The signatures below show parameter and return types.
 
 ## Create an OfficeDocument
 
@@ -15,14 +22,7 @@ Office::fromUploadedFile(UploadedFile $file): OfficeDocument
 - `fromContent()` snapshots complete bytes using the required explicit `InputFormat`.
 - `fromUploadedFile()` snapshots a valid Laravel upload and uses its original extension as the format candidate.
 
-See [Choosing an input](./inputs). `InputFormat` cases are:
-
-```text
-ODT DOC DOCX DOCM RTF TXT HTML
-ODS XLS XLSX XLSM CSV
-ODP PPT PPTX PPTM
-ODG PDF DXF SVG PNG JPEG WEBP
-```
+See [Choosing an input](./inputs) for input rules and [Supported conversions](./supported-conversions) for all formats.
 
 ## Convert an OfficeDocument
 
@@ -30,16 +30,11 @@ ODG PDF DXF SVG PNG JPEG WEBP
 $document->convertTo(Format $format): ConvertedOffice
 ```
 
-Converts once to a format supported by the input family. Unsupported combinations throw
-`UnsupportedConversion` before LibreOffice starts. See the [complete conversion matrix](./supported-conversions).
+Runs the conversion and returns its result. Each document allows one attempt, including failures.
+Unsupported combinations throw `UnsupportedConversion` before LibreOffice starts.
+See [Supported conversions](./supported-conversions) for all `Format` cases and allowed inputs.
 
-`Format` cases are:
-
-```text
-PDF ODT DOCX RTF TXT HTML ODS XLSX CSV ODP PPTX ODG PNG JPEG SVG WEBP
-```
-
-## Consume a ConvertedOffice
+## Retrieve or store a ConvertedOffice
 
 ```php
 $converted->output(): string
@@ -65,22 +60,11 @@ Mattmy\OfficeConverter\Contracts\OfficeConverterException
 ```
 
 Implementations are `EnvironmentUnavailable`, `InvalidOfficeInput`, `UnsupportedConversion`,
-`ConversionFailed`, and `AlreadyConsumed`. Storage destination validation uses PHP's
+`ConversionFailed`, and `AlreadyConsumed`, all under `Mattmy\OfficeConverter\Exceptions`. Storage destination validation uses PHP's
 `InvalidArgumentException`; Storage/Flysystem failures are not converted. See
 [Errors and troubleshooting](./errors-and-troubleshooting).
 
-## Laravel integration
+## Laravel configuration
 
-Publish tag:
-
-```text
-office-converter-config
-```
-
-Environment variable:
-
-```text
-LIBREOFFICE_BINARY
-```
-
-See [Configuration](./configuration) for config keys and defaults.
+The config file is `config/office-converter.php`; its publish tag is `office-converter-config`.
+`LIBREOFFICE_BINARY` overrides the executable path. See [Configuration](./configuration) for all keys and defaults.

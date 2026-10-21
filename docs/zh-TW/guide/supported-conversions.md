@@ -1,42 +1,25 @@
 # 支援的轉換
 
-輸入格式會固定文件家族。`convertTo()` 只接受該家族表列的輸出格式；其他組合會在 LibreOffice
-啟動前遭到拒絕。
+輸入格式決定文件家族。`convertTo()` 只接受該家族表列的輸出格式；其他組合會在 LibreOffice
+啟動前拋出 `UnsupportedConversion`。
 
-## 完整 Input 到 Output 列表
+## 輸入與輸出對照
 
-| Input | 家族 | 支援的 `Format` outputs |
+下表輸入欄列出 `InputFormat`，輸出欄列出可用的 `Format`；同一列內的每種輸入都支援列出的輸出。
+
+| 家族 | 輸入 | 可用輸出 |
 | --- | --- | --- |
-| `InputFormat::ODT` | Writer | `PDF`、`ODT`、`DOCX`、`RTF`、`TXT`、`HTML` |
-| `InputFormat::DOC` | Writer | `PDF`、`ODT`、`DOCX`、`RTF`、`TXT`、`HTML` |
-| `InputFormat::DOCX` | Writer | `PDF`、`ODT`、`DOCX`、`RTF`、`TXT`、`HTML` |
-| `InputFormat::DOCM` | Writer | `PDF`、`ODT`、`DOCX`、`RTF`、`TXT`、`HTML` |
-| `InputFormat::RTF` | Writer | `PDF`、`ODT`、`DOCX`、`RTF`、`TXT`、`HTML` |
-| `InputFormat::TXT` | Writer | `PDF`、`ODT`、`DOCX`、`RTF`、`TXT`、`HTML` |
-| `InputFormat::HTML` | Writer | `PDF`、`ODT`、`DOCX`、`RTF`、`TXT`、`HTML` |
-| `InputFormat::ODS` | Calc | `PDF`、`ODS`、`XLSX`、`CSV` |
-| `InputFormat::XLS` | Calc | `PDF`、`ODS`、`XLSX`、`CSV` |
-| `InputFormat::XLSX` | Calc | `PDF`、`ODS`、`XLSX`、`CSV` |
-| `InputFormat::XLSM` | Calc | `PDF`、`ODS`、`XLSX`、`CSV` |
-| `InputFormat::CSV` | Calc | `PDF`、`ODS`、`XLSX`、`CSV` |
-| `InputFormat::ODP` | Impress | `PDF`、`ODP`、`PPTX` |
-| `InputFormat::PPT` | Impress | `PDF`、`ODP`、`PPTX` |
-| `InputFormat::PPTX` | Impress | `PDF`、`ODP`、`PPTX` |
-| `InputFormat::PPTM` | Impress | `PDF`、`ODP`、`PPTX` |
-| `InputFormat::ODG` | Draw | `PDF`、`ODG`、`PNG`、`JPEG`、`SVG`、`WEBP` |
-| `InputFormat::PDF` | Draw | `PDF`、`ODG`、`PNG`、`JPEG`、`SVG`、`WEBP` |
-| `InputFormat::DXF` | Draw | `PDF`、`ODG`、`PNG`、`JPEG`、`SVG`、`WEBP` |
-| `InputFormat::SVG` | Draw | `PDF`、`ODG`、`PNG`、`JPEG`、`SVG`、`WEBP` |
-| `InputFormat::PNG` | Draw | `PDF`、`ODG`、`PNG`、`JPEG`、`SVG`、`WEBP` |
-| `InputFormat::JPEG` | Draw | `PDF`、`ODG`、`PNG`、`JPEG`、`SVG`、`WEBP` |
-| `InputFormat::WEBP` | Draw | `PDF`、`ODG`、`PNG`、`JPEG`、`SVG`、`WEBP` |
+| Writer | `ODT`、`DOC`、`DOCX`、`DOCM`、`RTF`、`TXT`、`HTML` | `PDF`、`ODT`、`DOCX`、`RTF`、`TXT`、`HTML` |
+| Calc | `ODS`、`XLS`、`XLSX`、`XLSM`、`CSV` | `PDF`、`ODS`、`XLSX`、`CSV` |
+| Impress | `ODP`、`PPT`、`PPTX`、`PPTM` | `PDF`、`ODP`、`PPTX` |
+| Draw | `ODG`、`PDF`、`DXF`、`SVG`、`PNG`、`JPEG`、`WEBP` | `PDF`、`ODG`、`PNG`、`JPEG`、`SVG`、`WEBP` |
 
-同一列包含相同格式時，允許同格式轉換。輸入檔名別名 `.htm` 與 `.jpeg` 分別對應
+允許轉成相同格式，例如 DOCX → DOCX。輸入副檔名 `.htm` 與 `.jpeg` 分別對應
 `InputFormat::HTML` 與 `InputFormat::JPEG`。
 
 ## 輸出檔名
 
-| `Format` | Canonical 副檔名 | 可用輸入家族 |
+| `Format` | 副檔名 | 可用輸入家族 |
 | --- | --- | --- |
 | `PDF` | `.pdf` | Writer、Calc、Impress、Draw |
 | `ODT` | `.odt` | Writer |
@@ -55,13 +38,13 @@
 | `SVG` | `.svg` | Draw |
 | `WEBP` | `.webp` | Draw |
 
-最後副檔名由選擇的 `Format` 決定，不採用呼叫端提供的檔名決定格式。
+最後的副檔名由 `Format` 決定，與傳入的檔名無關。
 
-## 各格式結果
+## 各格式的限制
 
-- CSV 輸出使用 UTF-8、逗號、雙引號，且只包含第一個工作表。
+- CSV 輸出使用 UTF-8，以逗號分隔欄位、雙引號包住文字，且只包含第一個工作表。
 - TXT 輸出使用 UTF-8。
-- HTML 只有在 LibreOffice 產生單一 HTML 檔案時才成功；另產生圖片 sidecars 時會失敗。
+- HTML 只有在 LibreOffice 產生單一 HTML 檔案時才成功；另產生圖片等附屬檔案時會失敗。
 - PNG、JPEG、SVG、WebP 使用 LibreOffice 的一般圖片輸出並只產生一張圖片。套件不提供選頁功能，
   也不保證多頁來源會選擇哪一頁。
 - 多頁 Draw 或 PDF 需要將所有頁面保留在一個輸出時，請轉成 PDF。

@@ -27,8 +27,8 @@ use Mattmy\OfficeConverter\Facades\Office;
 $document = Office::fromContent($bytes, InputFormat::DOCX);
 ```
 
-Raw bytes always require an explicit `InputFormat`. Container formats such as OLE and ZIP are not sufficient
-to infer every document family without ambiguity. The complete `$bytes` string already occupies PHP memory.
+Always provide an `InputFormat`; the package does not guess the format from bytes. The complete `$bytes`
+string already occupies PHP memory. TXT and CSV content must be UTF-8.
 
 ## Laravel upload
 
@@ -43,17 +43,11 @@ that extension nor the client MIME type proves the format; the package also vali
 
 Validate request authorization and application-specific upload limits before passing the file to the package.
 
-## Accepted input formats
+## Format checks
 
-| Family | `InputFormat` cases |
-| --- | --- |
-| Writer | `ODT`, `DOC`, `DOCX`, `DOCM`, `RTF`, `TXT`, `HTML` |
-| Calc | `ODS`, `XLS`, `XLSX`, `XLSM`, `CSV` |
-| Impress | `ODP`, `PPT`, `PPTX`, `PPTM` |
-| Draw | `ODG`, `PDF`, `DXF`, `SVG`, `PNG`, `JPEG`, `WEBP` |
-
-The family determines which outputs are available. See the complete
-[supported conversion list](./supported-conversions).
+See [Supported conversions](./supported-conversions) for all accepted formats and their outputs.
+TXT and CSV must be UTF-8 regardless of the input method. Legacy DOC, XLS, and PPT are checked only for an
+OLE container signature; a wrong document family may be rejected later by LibreOffice as `ConversionFailed`.
 
 ## One conversion attempt
 
@@ -61,6 +55,8 @@ Call `convertTo()` once on an `OfficeDocument`. The first attempt consumes it ev
 supported or LibreOffice fails:
 
 ```php
+use Mattmy\OfficeConverter\Enums\Format;
+
 $result = $document->convertTo(Format::PDF);
 ```
 

@@ -1,6 +1,14 @@
 # API 參考
 
-本頁列出 Laravel 應用程式可使用的公開 API。各連結指南會說明輸入、轉換、交付與錯誤行為。
+## 匯入類別
+
+```php
+use Mattmy\OfficeConverter\Enums\Format;
+use Mattmy\OfficeConverter\Enums\InputFormat;
+use Mattmy\OfficeConverter\Facades\Office;
+```
+
+以下列出方法簽章，方便查閱參數與回傳型別。
 
 ## 建立 OfficeDocument
 
@@ -10,18 +18,11 @@ Office::fromContent(string $content, InputFormat $format): OfficeDocument
 Office::fromUploadedFile(UploadedFile $file): OfficeDocument
 ```
 
-- `fromPath()` 建立本機絕對路徑所指向之可讀、非 symbolic-link 檔案的快照。
-- `fromContent()` 依必要的明確 `InputFormat` 建立完整 bytes 快照。
-- `fromUploadedFile()` 建立有效 Laravel upload 的快照，並以原始副檔名作為格式候選。
+- `fromPath()`：從可讀取、非符號連結的本機絕對路徑建立快照。
+- `fromContent()`：從完整內容建立快照，須提供 `InputFormat`。
+- `fromUploadedFile()`：從有效的 Laravel 上傳檔案建立快照，以原始副檔名判斷格式並驗證內容。
 
-詳見[選擇輸入方式](./inputs)。`InputFormat` cases：
-
-```text
-ODT DOC DOCX DOCM RTF TXT HTML
-ODS XLS XLSX XLSM CSV
-ODP PPT PPTX PPTM
-ODG PDF DXF SVG PNG JPEG WEBP
-```
+輸入格式與限制請看[選擇輸入方式](./inputs)及[支援的轉換](./supported-conversions)。
 
 ## 轉換 OfficeDocument
 
@@ -29,16 +30,12 @@ ODG PDF DXF SVG PNG JPEG WEBP
 $document->convertTo(Format $format): ConvertedOffice
 ```
 
-依輸入家族轉換一次。目標不支援時，會在 LibreOffice 啟動前拋出 `UnsupportedConversion`。詳見
-[完整轉換矩陣](./supported-conversions)。
+執行轉換並回傳結果。同一個文件只能嘗試一次，失敗也不能重用。
+不支援的輸入與輸出組合會在 LibreOffice 啟動前拋出 `UnsupportedConversion`。
 
-`Format` cases：
+可用的 `Format` 與輸入格式對照請看[支援的轉換](./supported-conversions)。
 
-```text
-PDF ODT DOCX RTF TXT HTML ODS XLSX CSV ODP PPTX ODG PNG JPEG SVG WEBP
-```
-
-## 消費 ConvertedOffice
+## 取得或儲存 ConvertedOffice
 
 ```php
 $converted->output(): string
@@ -49,36 +46,27 @@ $converted->storeAs(
 ): string|false
 ```
 
-- `output()` 回傳全部產物 bytes。
-- `storeAs()` 串流至 Laravel Storage disk，並回傳 driver 的路徑或 `false`。
+- `output()`：回傳完整的二進位字串。
+- `storeAs()`：串流至 Laravel Storage，回傳儲存路徑或 `false`。
 
-`output()` 與 `storeAs()` 只能擇一呼叫一次。無論成功或失敗，兩者都會消費結果並清除暫存的轉換
-檔案。詳見[取得與儲存輸出](./outputs)。
+兩個方法只能擇一呼叫一次，無論成功或失敗都會清理暫存檔案。
+命名規則與範例請看[取得與儲存輸出](./outputs)。
 
 ## 例外
 
-套件例外 marker：
+套件例外都實作 `Mattmy\OfficeConverter\Contracts\OfficeConverterException`：
 
-```php
-Mattmy\OfficeConverter\Contracts\OfficeConverterException
-```
+- `EnvironmentUnavailable`
+- `InvalidOfficeInput`
+- `UnsupportedConversion`
+- `ConversionFailed`
+- `AlreadyConsumed`
 
-實作包括 `EnvironmentUnavailable`、`InvalidOfficeInput`、`UnsupportedConversion`、
-`ConversionFailed` 與 `AlreadyConsumed`。Storage 目的地驗證使用 PHP `InvalidArgumentException`；
-Storage／Flysystem failures 不會被轉換。詳見[錯誤與疑難排解](./errors-and-troubleshooting)。
+這些類別位於 `Mattmy\OfficeConverter\Exceptions`。不合法的 Storage 目的地使用 PHP 的
+`InvalidArgumentException`；Storage／Flysystem 例外原樣拋出。
+處理範例請看[錯誤與疑難排解](./errors-and-troubleshooting)。
 
-## Laravel 整合
+## Laravel 設定
 
-Publish tag：
-
-```text
-office-converter-config
-```
-
-環境變數：
-
-```text
-LIBREOFFICE_BINARY
-```
-
-Config keys 與預設值請看[設定參考](./configuration)。
+設定檔為 `config/office-converter.php`，發布標籤為 `office-converter-config`。
+`LIBREOFFICE_BINARY` 可覆寫執行檔位置。所有設定鍵與預設值請看[設定參考](./configuration)。

@@ -1,9 +1,14 @@
 # Configuration
 
-The defaults work when LibreOffice's console command is on `PATH`. Publish the config to change the executable,
-timeout, byte limits, or temporary directory.
+The defaults work when LibreOffice is on `PATH`. Otherwise, set its path in `.env`:
+
+```dotenv
+LIBREOFFICE_BINARY=/usr/bin/soffice
+```
 
 ## Publish the config
+
+To change the limits or temporary directory, publish `config/office-converter.php`:
 
 ```bash
 php artisan vendor:publish --tag=office-converter-config
@@ -19,7 +24,7 @@ php artisan vendor:publish --tag=office-converter-config
 | `max_output_bytes` | — | 200 MiB | Maximum accepted completed artifact size |
 | `temporary_directory` | — | `storage/framework/laravel-office-converter` | Parent directory for temporary conversion files |
 
-`binary` must be a non-empty string. `timeout` must be a positive integer or float. Both byte limits must be
+`binary` must be a non-empty string. `timeout` must be a finite positive integer or float. Both byte limits must be
 positive integers. The temporary directory must be an absolute local path that can be created and written.
 Invalid values throw `EnvironmentUnavailable` when an operation starts.
 

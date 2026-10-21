@@ -3,36 +3,19 @@
 The input format fixes the document family. `convertTo()` accepts only the output formats listed for that
 family and rejects every other combination before LibreOffice starts.
 
-## Complete input-to-output list
+## Input-to-output list
 
-| Input | Family | Supported `Format` outputs |
+Inputs are `InputFormat` cases; outputs are `Format` cases. Every input in a row supports all outputs in that row.
+
+| Family | Inputs | Available outputs |
 | --- | --- | --- |
-| `InputFormat::ODT` | Writer | `PDF`, `ODT`, `DOCX`, `RTF`, `TXT`, `HTML` |
-| `InputFormat::DOC` | Writer | `PDF`, `ODT`, `DOCX`, `RTF`, `TXT`, `HTML` |
-| `InputFormat::DOCX` | Writer | `PDF`, `ODT`, `DOCX`, `RTF`, `TXT`, `HTML` |
-| `InputFormat::DOCM` | Writer | `PDF`, `ODT`, `DOCX`, `RTF`, `TXT`, `HTML` |
-| `InputFormat::RTF` | Writer | `PDF`, `ODT`, `DOCX`, `RTF`, `TXT`, `HTML` |
-| `InputFormat::TXT` | Writer | `PDF`, `ODT`, `DOCX`, `RTF`, `TXT`, `HTML` |
-| `InputFormat::HTML` | Writer | `PDF`, `ODT`, `DOCX`, `RTF`, `TXT`, `HTML` |
-| `InputFormat::ODS` | Calc | `PDF`, `ODS`, `XLSX`, `CSV` |
-| `InputFormat::XLS` | Calc | `PDF`, `ODS`, `XLSX`, `CSV` |
-| `InputFormat::XLSX` | Calc | `PDF`, `ODS`, `XLSX`, `CSV` |
-| `InputFormat::XLSM` | Calc | `PDF`, `ODS`, `XLSX`, `CSV` |
-| `InputFormat::CSV` | Calc | `PDF`, `ODS`, `XLSX`, `CSV` |
-| `InputFormat::ODP` | Impress | `PDF`, `ODP`, `PPTX` |
-| `InputFormat::PPT` | Impress | `PDF`, `ODP`, `PPTX` |
-| `InputFormat::PPTX` | Impress | `PDF`, `ODP`, `PPTX` |
-| `InputFormat::PPTM` | Impress | `PDF`, `ODP`, `PPTX` |
-| `InputFormat::ODG` | Draw | `PDF`, `ODG`, `PNG`, `JPEG`, `SVG`, `WEBP` |
-| `InputFormat::PDF` | Draw | `PDF`, `ODG`, `PNG`, `JPEG`, `SVG`, `WEBP` |
-| `InputFormat::DXF` | Draw | `PDF`, `ODG`, `PNG`, `JPEG`, `SVG`, `WEBP` |
-| `InputFormat::SVG` | Draw | `PDF`, `ODG`, `PNG`, `JPEG`, `SVG`, `WEBP` |
-| `InputFormat::PNG` | Draw | `PDF`, `ODG`, `PNG`, `JPEG`, `SVG`, `WEBP` |
-| `InputFormat::JPEG` | Draw | `PDF`, `ODG`, `PNG`, `JPEG`, `SVG`, `WEBP` |
-| `InputFormat::WEBP` | Draw | `PDF`, `ODG`, `PNG`, `JPEG`, `SVG`, `WEBP` |
+| Writer | `ODT`, `DOC`, `DOCX`, `DOCM`, `RTF`, `TXT`, `HTML` | `PDF`, `ODT`, `DOCX`, `RTF`, `TXT`, `HTML` |
+| Calc | `ODS`, `XLS`, `XLSX`, `XLSM`, `CSV` | `PDF`, `ODS`, `XLSX`, `CSV` |
+| Impress | `ODP`, `PPT`, `PPTX`, `PPTM` | `PDF`, `ODP`, `PPTX` |
+| Draw | `ODG`, `PDF`, `DXF`, `SVG`, `PNG`, `JPEG`, `WEBP` | `PDF`, `ODG`, `PNG`, `JPEG`, `SVG`, `WEBP` |
 
-Converting to the same format is allowed when it appears in the row. Input filename aliases `.htm` and
-`.jpeg` resolve to `InputFormat::HTML` and `InputFormat::JPEG` respectively.
+Converting to the same format is allowed, such as DOCX → DOCX. Input filename aliases `.htm` and `.jpeg`
+resolve to `InputFormat::HTML` and `InputFormat::JPEG` respectively.
 
 ## Output filenames
 
@@ -59,7 +42,7 @@ The selected `Format`, not a caller-provided filename, controls the final extens
 
 ## Format-specific results
 
-- CSV output is UTF-8, comma-delimited, double-quoted, and contains the first worksheet.
+- CSV output uses UTF-8, commas as field separators, double quotes as text delimiters, and the first worksheet only.
 - TXT output is UTF-8.
 - HTML succeeds only when LibreOffice creates one HTML file. Referenced image sidecars make the conversion fail.
 - PNG, JPEG, SVG, and WebP produce one image using LibreOffice's normal export behavior. There is no page

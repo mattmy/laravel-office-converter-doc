@@ -1,25 +1,29 @@
 # Errors and troubleshooting
 
-Package exceptions implement `OfficeConverterException`, allowing one catch for converter failures or a
-specific catch for each category. Storage and destination errors intentionally remain separate.
+Catch `OfficeConverterException` for package errors. Invalid Storage destinations throw
+`InvalidArgumentException`; Storage and Flysystem exceptions pass through unchanged.
 
 ## Handle conversion failures
 
 ```php
-use InvalidArgumentException;
 use Mattmy\OfficeConverter\Contracts\OfficeConverterException;
 use Mattmy\OfficeConverter\Exceptions\UnsupportedConversion;
 
 try {
     $stored = $document->convertTo($format)->storeAs('converted');
+
+    if ($stored === false) {
+        return back()->withErrors(['storage' => 'The converted file could not be saved.']);
+    }
 } catch (UnsupportedConversion $exception) {
     return back()->withErrors(['format' => 'That output is not available for this input.']);
-} catch (InvalidArgumentException $exception) {
-    return back()->withErrors(['destination' => 'Choose a safe Storage destination.']);
 } catch (OfficeConverterException $exception) {
     report($exception);
 }
 ```
+
+This example uses a fixed destination. If the destination comes from user input, validate it and handle
+`InvalidArgumentException` separately. Storage exceptions still follow your application's error handling.
 
 Do not show raw exception details to end users. Messages are bounded and workspace paths are removed, but they
 are intended for server diagnostics.

@@ -17,6 +17,8 @@ immediately before reading it. Use this only when the complete output safely fit
 ## Stream to Laravel Storage
 
 ```php
+use Mattmy\OfficeConverter\Enums\Format;
+
 $storedPath = $document
     ->convertTo(Format::DOCX)
     ->storeAs(
@@ -26,8 +28,8 @@ $storedPath = $document
     );
 ```
 
-This stores `converted-documents/quarterly-report.xlsx.docx`. The filename is a name, not permission to choose
-the output format: the trusted `.docx` extension comes from `Format::DOCX`.
+This stores `converted-documents/quarterly-report.xlsx.docx`: the supplied name is preserved, and
+`Format::DOCX` determines the final extension.
 
 The signature is:
 
@@ -55,22 +57,19 @@ stem uses `converted-{16 lowercase hexadecimal characters}`.
 
 ## Safe destinations
 
-Directory paths must be relative, use forward slashes, and contain no empty, `.` or `..` segment. Absolute
-paths, drive paths, backslashes, NUL, and Unicode control characters are rejected. Filenames cannot be empty,
-`.` or `..`, and cannot contain path separators or Unicode control characters.
+Directory paths must be relative and use forward slashes. After trailing slashes are removed, an empty string
+means the disk root; other paths cannot contain empty, `.` or `..` segments. Absolute paths, drive paths,
+backslashes, invalid UTF-8, and Unicode control characters (including NUL) are rejected.
+
+Filenames cannot be empty, `.` or `..`, and cannot contain path separators, invalid UTF-8, or Unicode control characters.
 
 Invalid destinations throw PHP's `InvalidArgumentException` before Storage is called.
 
 ## Storage behavior
 
-`storeAs()` follows the selected Laravel Storage driver's behavior:
-
-- it does not check whether the destination already exists;
-- it does not prevent or roll back overwrites;
-- it does not provide atomic publishing, locking, conditional creation, or retry;
-- a driver `false` result is returned unchanged;
-- Laravel Storage and Flysystem exceptions are thrown unchanged;
-- it does not set Content-Type metadata.
+`storeAs()` uses the selected disk's overwrite behavior, returns `false` unchanged, and lets Storage or
+Flysystem exceptions propagate. It does not provide atomic writes, rollback, or automatic retries.
+The package does not provide an output MIME accessor or set Storage Content-Type metadata.
 
 The output is consumed and its package workspace is cleaned whether Storage succeeds, returns `false`, or
 throws. Run the conversion again before retrying delivery.

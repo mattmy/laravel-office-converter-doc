@@ -9,7 +9,7 @@ the converted file or save it with Laravel Storage.
 | Requirement | Supported versions or setup |
 | --- | --- |
 | PHP | 8.2 or later in the PHP 8.x series, with DOM and ZIP |
-| Laravel | 12 or 13 |
+| Laravel | 12 with PHP 8.2+; 13 with PHP 8.3+ |
 | Operating system | Windows, Linux, or macOS |
 | External command | LibreOffice installed on `PATH` or configured with `LIBREOFFICE_BINARY` |
 
@@ -26,10 +26,8 @@ composer require mattmy/laravel-office-converter
 
 ## Install LibreOffice
 
-Use your operating system's package manager or the prebuilt installer from the
-[LibreOffice download page](https://www.libreoffice.org/download/). The
-[official installation instructions](https://www.libreoffice.org/installation-instructions/) provide more
-detail for macOS, Linux, and Windows. You do not need to compile LibreOffice from source.
+Use the commands below or download an installer from the
+[LibreOffice website](https://www.libreoffice.org/download/).
 
 ### macOS
 
@@ -51,10 +49,6 @@ sudo apt update
 sudo apt install libreoffice
 ```
 
-Ubuntu lists LibreOffice in its [official package index](https://packages.ubuntu.com/search?keywords=libreoffice),
-and Debian provides it through its normal package repositories. You can also use the prebuilt `.deb` packages
-from the LibreOffice download page.
-
 ### RHEL and Fedora
 
 Install from an enabled distribution repository when available:
@@ -63,10 +57,8 @@ Install from an enabled distribution repository when available:
 sudo dnf install libreoffice
 ```
 
-Fedora publishes LibreOffice in its
-[official package index](https://packages.fedoraproject.org/pkgs/libreoffice/libreoffice/). RHEL repository
-availability depends on the release and enabled subscriptions; use LibreOffice's prebuilt `.rpm` download and
-official installation instructions when the package is unavailable.
+RHEL package availability depends on the release and enabled repositories. If unavailable, install the
+`.rpm` packages using the [official instructions](https://www.libreoffice.org/installation-instructions/).
 
 ### Windows
 
@@ -79,23 +71,16 @@ C:\Program Files\LibreOffice\program\soffice.com
 
 If it is not on `PATH`, set `LIBREOFFICE_BINARY` to that path in your Laravel environment.
 
-The package does not require or inspect a numeric LibreOffice version. Compatibility is determined by whether
-the installed command and filters complete the requested conversion.
-
 ## Configuration
 
-By default, the package uses `soffice.com` on Windows and `soffice` elsewhere. Publish the config when the
-executable is elsewhere or you need different limits:
-
-```bash
-php artisan vendor:publish --tag=office-converter-config
-```
+The package uses `soffice.com` on Windows and `soffice` elsewhere. If it is not on `PATH`, set its path in
+`.env`; publishing the config is not required:
 
 ```dotenv
 LIBREOFFICE_BINARY=/usr/bin/soffice
 ```
 
-See [Configuration](./configuration) for every option and the configured executable's responsibility boundary.
+See [Configuration](./configuration) to change timeouts, size limits, or temporary storage.
 
 ## Quick start
 
