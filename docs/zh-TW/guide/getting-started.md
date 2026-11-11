@@ -58,13 +58,14 @@ RHEL 是否提供套件取決於版本與已啟用的軟體來源；找不到時
 
 ### Windows
 
-請從 LibreOffice 官網下載 Windows 安裝程式，再依安裝精靈完成安裝。命令列執行檔通常位於：
+請從 LibreOffice 官網下載 Windows 安裝程式。若執行檔不在 `PATH`，請在 `.env` 加上路徑。
+一般安裝位置的設定如下：
 
-```text
-C:\Program Files\LibreOffice\program\soffice.com
+```dotenv
+LIBREOFFICE_BINARY='C:\Program Files\LibreOffice\program\soffice.com'
 ```
 
-若執行檔不在 `PATH`，請在 Laravel 環境將 `LIBREOFFICE_BINARY` 設為上述路徑。
+請保留單引號，讓空白與反斜線能正確讀取；安裝在其他位置時，請改成實際路徑。
 
 ## 設定
 

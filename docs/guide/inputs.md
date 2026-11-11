@@ -15,8 +15,8 @@ The path must be absolute and identify a readable, non-symbolic-link regular fil
 directories, Storage-relative paths, and Windows UNC paths are not accepted. Your application remains
 responsible for authorizing which local paths a caller may request.
 
-The final filename extension selects the candidate `InputFormat`; matching is ASCII case-insensitive. `.htm`
-is accepted as HTML and `.jpeg` as JPEG. File contents are checked before LibreOffice starts.
+The package uses the final filename extension to select a format, then checks the contents before LibreOffice starts.
+Extension matching is ASCII case-insensitive. `.htm` is accepted as HTML and `.jpeg` as JPEG.
 
 ## Raw bytes
 
@@ -28,7 +28,7 @@ $document = Office::fromContent($bytes, InputFormat::DOCX);
 ```
 
 Always provide an `InputFormat`; the package does not guess the format from bytes. The complete `$bytes`
-string already occupies PHP memory. TXT and CSV content must be UTF-8.
+string occupies PHP memory.
 
 ## Laravel upload
 
@@ -38,8 +38,8 @@ use Mattmy\OfficeConverter\Facades\Office;
 $document = Office::fromUploadedFile($request->file('document'));
 ```
 
-The upload must be valid and readable. Its original filename supplies the candidate extension, but neither
-that extension nor the client MIME type proves the format; the package also validates the content.
+The upload must be valid and readable. The package checks its original filename extension and contents;
+it does not rely on the browser's MIME type.
 
 Validate request authorization and application-specific upload limits before passing the file to the package.
 
@@ -60,4 +60,4 @@ use Mattmy\OfficeConverter\Enums\Format;
 $result = $document->convertTo(Format::PDF);
 ```
 
-Create a new input snapshot before retrying.
+To retry or convert to another format, create a new input object.

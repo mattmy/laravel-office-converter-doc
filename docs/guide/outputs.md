@@ -1,7 +1,7 @@
 # Retrieving and storing output
 
-`convertTo()` returns a one-time `ConvertedOffice`. Choose exactly one terminal operation: `output()` or
-`storeAs()`.
+`convertTo()` returns a `ConvertedOffice` that you can use once. Call `output()` to read its contents or
+`storeAs()` to save it.
 
 ## Read all bytes
 
@@ -11,8 +11,8 @@ use Mattmy\OfficeConverter\Enums\Format;
 $bytes = $document->convertTo(Format::PDF)->output();
 ```
 
-`output()` returns the complete binary string and then cleans the package workspace. It rechecks the artifact
-immediately before reading it. Use this only when the complete output safely fits in PHP memory.
+`output()` checks the output file, returns its contents as a binary string, and removes the temporary files.
+The complete output must fit in PHP memory. If you only need to save it, use `storeAs()`.
 
 ## Stream to Laravel Storage
 
@@ -31,8 +31,6 @@ $storedPath = $document
 This stores `converted-documents/quarterly-report.xlsx.docx`: the supplied name is preserved, and
 `Format::DOCX` determines the final extension.
 
-The signature is:
-
 ```php
 storeAs(string $path, ?string $filename = null, ?string $disk = null): string|false
 ```
@@ -40,7 +38,7 @@ storeAs(string $path, ?string $filename = null, ?string $disk = null): string|fa
 - `$path` is a relative directory on the selected disk. `''` means the disk root; trailing `/` is normalized.
 - `$filename` is an optional safe filename. Existing suffix text is preserved.
 - `$disk` selects a Laravel filesystem disk. `null` uses the default disk.
-- The return value is Laravel Storage's stored path or `false` from the selected driver.
+- Returns the stored path, or `false` if the selected disk reports a failure.
 
 ## Filename examples
 
@@ -52,14 +50,14 @@ storeAs(string $path, ?string $filename = null, ?string $disk = null): string|fa
 | `Format::HTML` | `report.docx` | `report.docx.html` |
 | `Format::JPEG` | `preview.jpeg` | `preview.jpeg.jpg` |
 
-When `$filename` is omitted, a safe source filename stem is used. Raw content or an unsafe/missing source
-stem uses `converted-{16 lowercase hexadecimal characters}`.
+When `$filename` is omitted, the source filename is used without its final extension. If that name is unsafe
+or unavailable, the package generates a name such as `converted-a1b2c3d4e5f60718`. The output extension is then appended.
 
 ## Safe destinations
 
-Directory paths must be relative and use forward slashes. After trailing slashes are removed, an empty string
-means the disk root; other paths cannot contain empty, `.` or `..` segments. Absolute paths, drive paths,
-backslashes, invalid UTF-8, and Unicode control characters (including NUL) are rejected.
+Use `/` to separate directories and `''` for the disk root. `/` is not a valid root path.
+Trailing slashes are removed; the remaining path cannot contain empty, `.` or `..` segments, such as `a//b`.
+Absolute paths, drive paths, backslashes, invalid UTF-8, and Unicode control characters (including NUL) are rejected.
 
 Filenames cannot be empty, `.` or `..`, and cannot contain path separators, invalid UTF-8, or Unicode control characters.
 
@@ -69,7 +67,7 @@ Invalid destinations throw PHP's `InvalidArgumentException` before Storage is ca
 
 `storeAs()` uses the selected disk's overwrite behavior, returns `false` unchanged, and lets Storage or
 Flysystem exceptions propagate. It does not provide atomic writes, rollback, or automatic retries.
-The package does not provide an output MIME accessor or set Storage Content-Type metadata.
+Set any required Content-Type metadata in your application; the package does not set it or provide an output MIME type.
 
-The output is consumed and its package workspace is cleaned whether Storage succeeds, returns `false`, or
-throws. Run the conversion again before retrying delivery.
+The result cannot be reused, and temporary files are cleaned up whether validation or storage succeeds or fails.
+To retry, create a new input and convert it again.

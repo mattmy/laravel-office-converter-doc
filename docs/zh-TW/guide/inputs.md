@@ -26,7 +26,6 @@ $document = Office::fromContent($bytes, InputFormat::DOCX);
 ```
 
 必須提供 `InputFormat`，套件不會自行猜測格式。完整的 `$bytes` 字串會占用 PHP 記憶體。
-TXT 與 CSV 內容須使用 UTF-8。
 
 ## Laravel 上傳檔案
 

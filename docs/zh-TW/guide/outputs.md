@@ -51,12 +51,12 @@ storeAs(string $path, ?string $filename = null, ?string $disk = null): string|fa
 | `Format::JPEG` | `preview.jpeg` | `preview.jpeg.jpg` |
 
 省略 `$filename` 時，會使用來源檔名去掉最後副檔名後的名稱。沒有來源檔名或名稱不安全時，
-改用 `converted-{16 個小寫十六進位字元}`。
+改用隨機名稱，例如 `converted-a1b2c3d4e5f60718`，再附加輸出副檔名。
 
 ## 安全路徑與檔名
 
 資料夾路徑須使用 `/` 分隔；移除結尾的 `/` 後，不得含有空的路徑區段（例如 `a//b`）、`.` 或 `..`。
-完整空字串可表示根目錄。絕對路徑、磁碟機路徑、反斜線、無效 UTF-8 與 Unicode 控制字元
+請用 `''` 表示根目錄，不能使用 `/`。絕對路徑、磁碟機路徑、反斜線、無效 UTF-8 與 Unicode 控制字元
 （包含 NUL）都不接受。
 
 檔名不得為空字串、`.` 或 `..`，也不得包含路徑分隔符、無效 UTF-8 或 Unicode 控制字元。
@@ -65,7 +65,8 @@ storeAs(string $path, ?string $filename = null, ?string $disk = null): string|fa
 ## 覆寫與失敗行為
 
 `storeAs()` 沿用所選 disk 的覆寫行為，原樣回傳 `false` 或拋出 Storage／Flysystem 例外。
-套件不提供不可分割寫入、失敗回復或自動重試，也不提供輸出 MIME 查詢方法或設定 Storage 的 Content-Type。
+套件不提供不可分割寫入、失敗回復或自動重試。若需要 Content-Type，請由應用程式設定；套件不會
+設定這項資料，也不提供輸出 MIME 類型。
 
 不論驗證或儲存成功、失敗，結果都不能再使用，套件也會清理自己的暫存資料夾。
 需要重試儲存時，請重新建立輸入並執行轉換。

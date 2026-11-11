@@ -24,6 +24,9 @@ php artisan vendor:publish --tag=office-converter-config
 | `max_output_bytes` | — | 200 MiB | Maximum accepted completed artifact size |
 | `temporary_directory` | — | `storage/framework/laravel-office-converter` | Parent directory for temporary conversion files |
 
+HTML and SVG inputs and outputs have an additional 4 MiB limit. Increasing the byte limits above does not
+raise this format-specific limit.
+
 `binary` must be a non-empty string. `timeout` must be a finite positive integer or float. Both byte limits must be
 positive integers. The temporary directory must be an absolute local path that can be created and written.
 Invalid values throw `EnvironmentUnavailable` when an operation starts.
@@ -33,9 +36,9 @@ is running.
 
 ## Executable scope
 
-`LIBREOFFICE_BINARY` may point to LibreOffice or another compatible executable chosen by the application. The
-package does not require a wrapper, supervisor, or LibreOffice profile policy. Its timeout applies to the
-process it directly manages and does not guarantee complete process-tree termination.
+`LIBREOFFICE_BINARY` can point to LibreOffice or a compatible executable of your choice. The timeout only
+stops the process the package directly manages; it does not guarantee that all child processes stop.
+See [Performance and security](./performance-and-security) for environment responsibilities.
 
-Configuration is read and validated at the start of each factory operation. It is compatible with Laravel
-`config:cache`.
+Settings are read and validated when you create an input object, and stay the same for that conversion.
+Laravel `config:cache` is supported.

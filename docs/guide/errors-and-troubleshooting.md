@@ -8,8 +8,10 @@ Catch `OfficeConverterException` for package errors. Invalid Storage destination
 ```php
 use Mattmy\OfficeConverter\Contracts\OfficeConverterException;
 use Mattmy\OfficeConverter\Exceptions\UnsupportedConversion;
+use Mattmy\OfficeConverter\Facades\Office;
 
 try {
+    $document = Office::fromUploadedFile($request->file('document'));
     $stored = $document->convertTo($format)->storeAs('converted');
 
     if ($stored === false) {
@@ -33,13 +35,13 @@ are intended for server diagnostics.
 | Exception | Meaning |
 | --- | --- |
 | `EnvironmentUnavailable` | Configuration is invalid, or the configured executable cannot be found or started |
-| `InvalidOfficeInput` | The source, extension, size, upload, or minimum format structure is not accepted |
+| `InvalidOfficeInput` | The source is missing, unreadable, an invalid upload, too large, or does not match an accepted format |
 | `UnsupportedConversion` | The requested `Format` is unavailable for the input family |
-| `ConversionFailed` | LibreOffice failed, timed out, or did not produce exactly one valid bounded artifact |
+| `ConversionFailed` | Conversion failed or timed out, or the output is missing, invalid, too large, or contains more than one file |
 | `AlreadyConsumed` | An `OfficeDocument` or `ConvertedOffice` was used after its first operation |
 
-`AlreadyConsumed` also extends `LogicException`. `storeAs()` can additionally throw `InvalidArgumentException`
-for its destination and unmodified Laravel Storage or Flysystem exceptions. A Storage driver may return `false`.
+`AlreadyConsumed` also extends `LogicException`. Check the return value of `storeAs()`: a disk can report
+failure by returning `false` instead of throwing an exception.
 
 ## LibreOffice cannot be found
 
@@ -48,16 +50,16 @@ absolute executable path.
 
 ## A supported format still fails
 
-There is no numeric LibreOffice version gate. A distribution may lack or change a required filter. Confirm the
-same conversion works with the configured executable and review its sanitized server-side error. The failure
-remains `ConversionFailed` because actual command capability defines compatibility.
+Check whether the configured LibreOffice executable can perform the same conversion, and review the server
+error. Missing conversion filters or incompatible commands cause `ConversionFailed`; the package checks the
+conversion result, not the LibreOffice version number.
 
 ## HTML conversion fails with an image
 
-HTML output must be a single file. If LibreOffice writes image sidecars, the package rejects the complete
-conversion rather than return HTML containing broken references. Choose PDF or another single-file target.
+HTML output must be a single file. If LibreOffice creates separate images or other supporting files,
+the conversion fails. Choose PDF or another single-file format.
 
 ## Storage returns false or throws
 
-The selected disk controls overwrite and failure behavior. The result has already been consumed and its
-temporary workspace cleaned, so create a new input and run the conversion again before retrying.
+Check the selected disk's connection, permissions, and settings. The result cannot be reused, and its temporary
+files have been cleaned up. To retry, create a new input and convert it again.

@@ -17,27 +17,9 @@
 允許轉成相同格式，例如 DOCX → DOCX。輸入副檔名 `.htm` 與 `.jpeg` 分別對應
 `InputFormat::HTML` 與 `InputFormat::JPEG`。
 
-## 輸出檔名
+## 輸出副檔名
 
-| `Format` | 副檔名 | 可用輸入家族 |
-| --- | --- | --- |
-| `PDF` | `.pdf` | Writer、Calc、Impress、Draw |
-| `ODT` | `.odt` | Writer |
-| `DOCX` | `.docx` | Writer |
-| `RTF` | `.rtf` | Writer |
-| `TXT` | `.txt` | Writer |
-| `HTML` | `.html` | Writer |
-| `ODS` | `.ods` | Calc |
-| `XLSX` | `.xlsx` | Calc |
-| `CSV` | `.csv` | Calc |
-| `ODP` | `.odp` | Impress |
-| `PPTX` | `.pptx` | Impress |
-| `ODG` | `.odg` | Draw |
-| `PNG` | `.png` | Draw |
-| `JPEG` | `.jpg` | Draw |
-| `SVG` | `.svg` | Draw |
-| `WEBP` | `.webp` | Draw |
-
+輸出副檔名是 `Format` 名稱的小寫，只有 `Format::JPEG` 使用 `.jpg`。
 最後的副檔名由 `Format` 決定，與傳入的檔名無關。
 
 ## 各格式的限制

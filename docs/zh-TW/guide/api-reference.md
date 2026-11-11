@@ -3,9 +3,12 @@
 ## 匯入類別
 
 ```php
+use Illuminate\Http\UploadedFile;
+use Mattmy\OfficeConverter\ConvertedOffice;
 use Mattmy\OfficeConverter\Enums\Format;
 use Mattmy\OfficeConverter\Enums\InputFormat;
 use Mattmy\OfficeConverter\Facades\Office;
+use Mattmy\OfficeConverter\OfficeDocument;
 ```
 
 以下列出方法簽章，方便查閱參數與回傳型別。

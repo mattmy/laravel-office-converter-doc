@@ -8,8 +8,10 @@
 ```php
 use Mattmy\OfficeConverter\Contracts\OfficeConverterException;
 use Mattmy\OfficeConverter\Exceptions\UnsupportedConversion;
+use Mattmy\OfficeConverter\Facades\Office;
 
 try {
+    $document = Office::fromUploadedFile($request->file('document'));
     $stored = $document->convertTo($format)->storeAs('converted');
 
     if ($stored === false) {

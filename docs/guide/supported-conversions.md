@@ -1,7 +1,7 @@
 # Supported conversions
 
-The input format fixes the document family. `convertTo()` accepts only the output formats listed for that
-family and rejects every other combination before LibreOffice starts.
+The input format determines its family. `convertTo()` accepts only that family's listed output formats;
+other combinations throw `UnsupportedConversion` before LibreOffice starts.
 
 ## Input-to-output list
 
@@ -17,39 +17,21 @@ Inputs are `InputFormat` cases; outputs are `Format` cases. Every input in a row
 Converting to the same format is allowed, such as DOCX → DOCX. Input filename aliases `.htm` and `.jpeg`
 resolve to `InputFormat::HTML` and `InputFormat::JPEG` respectively.
 
-## Output filenames
+## Output extensions
 
-| `Format` | Canonical extension | Available from |
-| --- | --- | --- |
-| `PDF` | `.pdf` | Writer, Calc, Impress, Draw |
-| `ODT` | `.odt` | Writer |
-| `DOCX` | `.docx` | Writer |
-| `RTF` | `.rtf` | Writer |
-| `TXT` | `.txt` | Writer |
-| `HTML` | `.html` | Writer |
-| `ODS` | `.ods` | Calc |
-| `XLSX` | `.xlsx` | Calc |
-| `CSV` | `.csv` | Calc |
-| `ODP` | `.odp` | Impress |
-| `PPTX` | `.pptx` | Impress |
-| `ODG` | `.odg` | Draw |
-| `PNG` | `.png` | Draw |
-| `JPEG` | `.jpg` | Draw |
-| `SVG` | `.svg` | Draw |
-| `WEBP` | `.webp` | Draw |
-
-The selected `Format`, not a caller-provided filename, controls the final extension.
+Output extensions match the lowercase `Format` case name, except `Format::JPEG`, which uses `.jpg`.
+The selected format determines the final extension, regardless of the supplied filename.
 
 ## Format-specific results
 
 - CSV output uses UTF-8, commas as field separators, double quotes as text delimiters, and the first worksheet only.
 - TXT output is UTF-8.
-- HTML succeeds only when LibreOffice creates one HTML file. Referenced image sidecars make the conversion fail.
-- PNG, JPEG, SVG, and WebP produce one image using LibreOffice's normal export behavior. There is no page
-  selector and no promise about which page a multi-page source supplies.
+- HTML output must be a single file. Separate images or other supporting files make the conversion fail.
+- PNG, JPEG, SVG, and WebP produce one image. You cannot select a page, and the package does not guarantee
+  which page LibreOffice uses from a multi-page source.
 - Convert a multi-page Draw or PDF source to PDF when every page must remain in one output.
 - PDF input belongs to the Draw family. Converting it does not perform OCR or reconstruct editable document
   structure.
 
-Successful conversion means one non-empty, bounded artifact passed the package's format checks. It does not
-promise lossless conversion, visual fidelity, or Microsoft Office compatibility.
+A successful conversion produces one non-empty file within the size limit that passes the format checks.
+It does not guarantee lossless conversion, identical appearance, or full Microsoft Office compatibility.

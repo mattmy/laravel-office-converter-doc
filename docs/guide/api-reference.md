@@ -3,9 +3,12 @@
 ## Imports
 
 ```php
+use Illuminate\Http\UploadedFile;
+use Mattmy\OfficeConverter\ConvertedOffice;
 use Mattmy\OfficeConverter\Enums\Format;
 use Mattmy\OfficeConverter\Enums\InputFormat;
 use Mattmy\OfficeConverter\Facades\Office;
+use Mattmy\OfficeConverter\OfficeDocument;
 ```
 
 The signatures below show parameter and return types.
@@ -19,8 +22,8 @@ Office::fromUploadedFile(UploadedFile $file): OfficeDocument
 ```
 
 - `fromPath()` snapshots an absolute, readable, non-symbolic-link local file.
-- `fromContent()` snapshots complete bytes using the required explicit `InputFormat`.
-- `fromUploadedFile()` snapshots a valid Laravel upload and uses its original extension as the format candidate.
+- `fromContent()` snapshots a binary string; you must specify its `InputFormat`.
+- `fromUploadedFile()` snapshots a valid Laravel upload, using its original extension and checking its contents.
 
 See [Choosing an input](./inputs) for input rules and [Supported conversions](./supported-conversions) for all formats.
 
@@ -45,21 +48,16 @@ $converted->storeAs(
 ): string|false
 ```
 
-- `output()` returns all artifact bytes.
-- `storeAs()` streams to a Laravel Storage disk and returns the driver's path or `false`.
+- `output()` returns the complete file as a binary string.
+- `storeAs()` streams to a Laravel Storage disk and returns the stored path or `false`.
 
 Call either `output()` or `storeAs()` once. Both methods consume the result on success or failure and clean
 its temporary conversion files. See [Retrieving and storing output](./outputs).
 
 ## Exceptions
 
-The package exception marker is:
-
-```php
-Mattmy\OfficeConverter\Contracts\OfficeConverterException
-```
-
-Implementations are `EnvironmentUnavailable`, `InvalidOfficeInput`, `UnsupportedConversion`,
+All package exceptions implement `Mattmy\OfficeConverter\Contracts\OfficeConverterException`:
+`EnvironmentUnavailable`, `InvalidOfficeInput`, `UnsupportedConversion`,
 `ConversionFailed`, and `AlreadyConsumed`, all under `Mattmy\OfficeConverter\Exceptions`. Storage destination validation uses PHP's
 `InvalidArgumentException`; Storage/Flysystem failures are not converted. See
 [Errors and troubleshooting](./errors-and-troubleshooting).

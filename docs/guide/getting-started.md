@@ -13,12 +13,10 @@ the converted file or save it with Laravel Storage.
 | Operating system | Windows, Linux, or macOS |
 | External command | LibreOffice installed on `PATH` or configured with `LIBREOFFICE_BINARY` |
 
-LibreOffice is installed separately. Compatibility is determined by whether its command and filters complete
-the requested conversion; the package does not require or inspect a numeric LibreOffice version.
+LibreOffice is installed separately. Compatibility depends on whether it can complete the requested
+conversion; the package does not check its version number.
 
 ## Install the package
-
-Install the package with Composer:
 
 ```bash
 composer require mattmy/laravel-office-converter
@@ -62,14 +60,14 @@ RHEL package availability depends on the release and enabled repositories. If un
 
 ### Windows
 
-Download the Windows installer from the LibreOffice website and complete its installation wizard. The usual
-console executable location is:
+Download the Windows installer from the LibreOffice website. If the executable is not on `PATH`, add its
+path to `.env`. For a standard installation:
 
-```text
-C:\Program Files\LibreOffice\program\soffice.com
+```dotenv
+LIBREOFFICE_BINARY='C:\Program Files\LibreOffice\program\soffice.com'
 ```
 
-If it is not on `PATH`, set `LIBREOFFICE_BINARY` to that path in your Laravel environment.
+Keep the single quotes so spaces and backslashes are read correctly. Adjust the path if you installed LibreOffice elsewhere.
 
 ## Configuration
 
@@ -95,8 +93,8 @@ $path = Office::fromUploadedFile($request->file('document'))
     ->storeAs('converted-documents', 'report.pdf');
 ```
 
-`$path` is the stored path or `false` when the selected Storage driver reports failure. The source document
-and converted result are one-time objects: a failed conversion or delivery must be started again.
+`$path` is the stored path, or `false` if the selected disk reports a failure. The input and result can each be
+used once. To retry after a conversion or storage failure, create a new input and convert it again.
 
 ## Next steps
 
