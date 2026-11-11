@@ -8,7 +8,7 @@ the converted file or save it with Laravel Storage.
 
 | Requirement | Supported versions or setup |
 | --- | --- |
-| PHP | 8.2 or later in the PHP 8.x series, with DOM and ZIP |
+| PHP | 8.2 or later in the PHP 8.x series, with DOM, XML, and ZIP |
 | Laravel | 12 with PHP 8.2+; 13 with PHP 8.3+ |
 | Operating system | Windows, Linux, or macOS |
 | External command | LibreOffice installed on `PATH` or configured with `LIBREOFFICE_BINARY` |

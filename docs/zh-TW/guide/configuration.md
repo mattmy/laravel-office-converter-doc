@@ -24,8 +24,6 @@ php artisan vendor:publish --tag=office-converter-config
 | `max_output_bytes` | — | 200 MiB | 轉換完成後的輸出大小上限 |
 | `temporary_directory` | — | `storage/framework/laravel-office-converter` | 轉換暫存檔案的上層資料夾 |
 
-HTML 與 SVG 的輸入、輸出另有 4 MiB 上限，調高上述大小設定不會改變這項限制。
-
 `binary` 必須是非空字串；`timeout` 必須是有限的正整數或正浮點數；兩個大小上限必須是正整數，單位為位元組。
 暫存資料夾必須是可建立、可寫入的本機絕對路徑。設定無效時會拋出 `EnvironmentUnavailable`。
 

@@ -24,9 +24,6 @@ php artisan vendor:publish --tag=office-converter-config
 | `max_output_bytes` | — | 200 MiB | Maximum accepted completed artifact size |
 | `temporary_directory` | — | `storage/framework/laravel-office-converter` | Parent directory for temporary conversion files |
 
-HTML and SVG inputs and outputs have an additional 4 MiB limit. Increasing the byte limits above does not
-raise this format-specific limit.
-
 `binary` must be a non-empty string. `timeout` must be a finite positive integer or float. Both byte limits must be
 positive integers. The temporary directory must be an absolute local path that can be created and written.
 Invalid values throw `EnvironmentUnavailable` when an operation starts.
